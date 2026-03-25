@@ -1,0 +1,100 @@
+#include "WindowsInkRecognizer.h"
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
+WindowsInkRecognizer::WindowsInkRecognizer(QObject* parent)
+    : QObject(parent)
+{
+#ifdef Q_OS_WIN
+    m_lib.setFileName("InkRecoBridge");
+
+    if (!m_lib.load()) {
+        m_available = false;
+        return;
+    }
+
+    pInit      = (FnInit)     m_lib.resolve("InkReco_Init");
+    pClear     = (FnClear)    m_lib.resolve("InkReco_Clear");
+    pSetLang   = (FnSetLang)  m_lib.resolve("InkReco_SetLanguage");
+    pBegin     = (FnBegin)    m_lib.resolve("InkReco_BeginStroke");
+    pAdd       = (FnAdd)      m_lib.resolve("InkReco_AddPoint");
+    pEnd       = (FnEnd)      m_lib.resolve("InkReco_EndStroke");
+    pRecoText  = (FnReco)     m_lib.resolve("InkReco_RecognizeText");
+    pRecoShape = (FnReco)     m_lib.resolve("InkReco_RecognizeShapes");
+
+    if (!pInit || !pClear || !pSetLang || !pBegin || !pAdd || !pEnd || !pRecoText || !pRecoShape) {
+        m_available = false;
+        return;
+    }
+
+    pInit();
+    m_available = true;
+#else
+    m_available = false;
+#endif
+}
+
+WindowsInkRecognizer::~WindowsInkRecognizer()
+{
+#ifdef Q_OS_WIN
+    if (m_available && pClear)
+        pClear();
+#endif
+}
+
+bool WindowsInkRecognizer::setLanguage(const QString& bcp47)
+{
+#ifdef Q_OS_WIN
+    if (!m_available) return false;
+    return pSetLang(reinterpret_cast<const wchar_t*>(bcp47.utf16()));
+#else
+    return false;
+#endif
+}
+
+void WindowsInkRecognizer::beginStroke()
+{
+#ifdef Q_OS_WIN
+    if (m_available) pBegin();
+#endif
+}
+
+void WindowsInkRecognizer::addPoint(const QPointF& p, float t)
+{
+#ifdef Q_OS_WIN
+    if (!m_available) return;
+    InkPoint ip { float(p.x()), float(p.y()), t };
+    pAdd(ip);
+#endif
+}
+
+void WindowsInkRecognizer::endStroke()
+{
+#ifdef Q_OS_WIN
+    if (m_available) pEnd();
+#endif
+}
+
+QString WindowsInkRecognizer::recognizeText()
+{
+#ifdef Q_OS_WIN
+    if (!m_available) return {};
+    const wchar_t* w = pRecoText();
+    return QString::fromWCharArray(w);
+#else
+    return {};
+#endif
+}
+
+QString WindowsInkRecognizer::recognizeShapes()
+{
+#ifdef Q_OS_WIN
+    if (!m_available) return {};
+    const wchar_t* w = pRecoShape();
+    return QString::fromWCharArray(w);
+#else
+    return {};
+#endif
+}

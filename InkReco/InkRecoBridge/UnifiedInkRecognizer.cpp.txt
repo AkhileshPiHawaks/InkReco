@@ -1,0 +1,52 @@
+#include "UnifiedInkRecognizer.h"
+#include "BaseRecognizer.h"
+
+#ifdef Q_OS_WIN
+#include "WindowsInkRecognizer.h"
+#elif defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+#include "MlKitMultiModelRecognizer.h"
+#elif defined(Q_OS_WASM)
+#include "WasmInkRecognizer.h"
+#else
+#include "CloudRecognizer.h"
+#endif
+
+UnifiedInkRecognizer::UnifiedInkRecognizer(QObject* parent)
+    : QObject(parent)
+{
+#ifdef Q_OS_WIN
+    backend = std::make_unique<WindowsInkRecognizer>();
+#elif defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    backend = std::make_unique<MlKitMultiModelRecognizer>();
+#elif defined(Q_OS_WASM)
+    backend = std::make_unique<WasmInkRecognizer>();
+#else
+    backend = std::make_unique<CloudRecognizer>();
+#endif
+
+    connect(backend.get(), &BaseRecognizer::textReady,
+            this, &UnifiedInkRecognizer::textReady);
+
+    connect(backend.get(), &BaseRecognizer::shapesReady,
+            this, &UnifiedInkRecognizer::shapesReady);
+}
+
+void UnifiedInkRecognizer::setLanguage(const QString& lang) {
+    backend->setLanguage(lang);
+}
+
+void UnifiedInkRecognizer::beginStroke() {
+    backend->beginStroke();
+}
+
+void UnifiedInkRecognizer::addPoint(const QPointF& p, qreal t) {
+    backend->addPoint(p, t);
+}
+
+void UnifiedInkRecognizer::endStroke() {
+    backend->endStroke();
+}
+
+void UnifiedInkRecognizer::recognizeAsync() {
+    backend->recognizeAsync();
+}

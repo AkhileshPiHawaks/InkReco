@@ -1,0 +1,3 @@
+D:\SmartSute\SmartSute\SmartSute\PageNavigation\New folder\InkRecoBridge\InkRecoBridge\x64\Debug\InkRecoBridge.vcxproj.MdMergeInputs.cache
+D:\SmartSute\SmartSute\SmartSute\PageNavigation\New folder\InkRecoBridge\InkRecoBridge\x64\Debug\InkRecoBridge.vcxproj.cppwinrt_plat.cache
+D:\SmartSute\SmartSute\SmartSute\PageNavigation\New folder\InkRecoBridge\InkRecoBridge\x64\Debug\InkRecoBridge.vcxproj.cppwinrt_comp.cache

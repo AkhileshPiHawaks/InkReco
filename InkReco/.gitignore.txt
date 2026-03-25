@@ -1,0 +1,76 @@
+# --- Qt / QMake / CMake ---
+build*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+*.qmake.stash
+*.pro.user
+*.pro.user.*
+*.pri.user
+*.qmlc
+*.jsc
+*.moc
+*.qrc.dep
+*.qrc.release
+*.qrc.debug
+
+# --- Qt Creator ---
+*.autosave
+*.creator
+*.creator.user
+*.creator.user.*
+*.files
+*.includes
+
+# --- Visual Studio / MSVC ---
+*.obj
+*.pdb
+*.idb
+*.ilk
+*.exp
+*.lib
+*.sln
+*.vcxproj
+*.vcxproj.*
+*.ipch
+*.opendb
+*.tlog
+*.lastbuildstate
+*.cachefile
+*.db
+
+# --- Binaries ---
+*.exe
+*.dll
+*.so
+*.dylib
+*.app
+*.apk
+
+# --- Logs / Temp ---
+*.log
+*.tmp
+*.temp
+
+# --- OS files ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Python (if used anywhere) ---
+__pycache__/
+*.pyc
+
+# --- Archives ---
+*.zip
+*.7z
+*.tar
+*.gz
+
+# --- Images / Large assets (optional) ---
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.tiff

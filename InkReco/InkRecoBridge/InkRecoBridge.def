@@ -1,0 +1,6 @@
+LIBRARY InkRecoBridge
+EXPORTS
+    InkReco_Init
+    InkReco_Clear
+    InkReco_RecognizeText
+    InkReco_RecognizeShapes

@@ -1,0 +1,39 @@
+#ifdef Q_OS_WIN
+#include "InkRecoBridge.h"
+#endif
+
+void Canvas::beginStroke(const QPointF& p)
+{
+#ifdef Q_OS_WIN
+    InkReco_BeginStroke();
+    InkPoint ip { float(p.x()), float(p.y()), 0.0f };
+    InkReco_AddPoint(ip);
+#endif
+}
+
+void Canvas::addPoint(const QPointF& p)
+{
+#ifdef Q_OS_WIN
+    InkPoint ip { float(p.x()), float(p.y()), 0.0f };
+    InkReco_AddPoint(ip);
+#endif
+}
+
+void Canvas::endStroke(const QPointF& p)
+{
+#ifdef Q_OS_WIN
+    InkPoint ip { float(p.x()), float(p.y()), 0.0f };
+    InkReco_AddPoint(ip);
+    InkReco_EndStroke();
+#endif
+}
+
+QString Canvas::recognizeInk()
+{
+#ifdef Q_OS_WIN
+    const wchar_t* w = InkReco_Recognize();
+    return QString::fromWCharArray(w);
+#else
+    return {};
+#endif
+}

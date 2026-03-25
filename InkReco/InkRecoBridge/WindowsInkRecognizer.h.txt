@@ -1,0 +1,76 @@
+#pragma once
+#include <QObject>
+#include <QPointF>
+#include <QString>
+#include <QLibrary>
+
+struct StrokeSample {
+    QPointF pos;
+    qreal   t;      // timestamp in ms
+};
+
+class StrokeRecorder {
+public:
+    void beginStroke() { m_points.clear(); }
+
+    void addSample(const QPointF& p, qreal tMs) {
+        if (m_points.isEmpty() || QLineF(m_points.last().pos, p).length() > 2.0)
+            m_points.push_back({p, tMs});
+    }
+
+    QVector<StrokeSample> endStroke() { return m_points; }
+
+private:
+    QVector<StrokeSample> m_points;
+};
+
+class WindowsInkRecognizer : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit WindowsInkRecognizer(QObject* parent = nullptr);
+    ~WindowsInkRecognizer();
+
+    bool isAvailable() const { return m_available; }
+
+    bool setLanguage(const QString& bcp47);
+
+    void beginStroke();
+    void addPoint(const QPointF& p, float t = 0.0f);
+    void endStroke();
+
+    QString recognizeText();
+    QString recognizeShapes();
+
+private:
+#ifdef Q_OS_WIN
+    typedef void (*FnInit)();
+    typedef void (*FnClear)();
+    typedef bool (*FnSetLang)(const wchar_t*);
+    typedef void (*FnBegin)();
+    typedef void (*FnAdd)(const struct InkPoint&);
+    typedef void (*FnEnd)();
+    typedef const wchar_t* (*FnReco)();
+
+    struct InkPoint {
+        float x;
+        float y;
+        float t;
+    };
+
+    QLibrary m_lib;
+    bool m_available = false;
+
+    FnInit     pInit     = nullptr;
+    FnClear    pClear    = nullptr;
+    FnSetLang  pSetLang  = nullptr;
+    FnBegin    pBegin    = nullptr;
+    FnAdd      pAdd      = nullptr;
+    FnEnd      pEnd      = nullptr;
+    FnReco     pRecoText = nullptr;
+    FnReco     pRecoShape = nullptr;
+#else
+    bool m_available = false;
+#endif
+};

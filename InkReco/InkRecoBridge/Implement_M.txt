@@ -1,0 +1,105 @@
+#pragma once
+#include <QObject>
+#include <QPointF>
+#include <QElapsedTimer>
+
+#include "BrushEngine.h"
+#include "UnifiedInkRecognizer.h"
+
+class InkController : public QObject {
+    Q_OBJECT
+public:
+    explicit InkController(QObject* parent = nullptr);
+
+    void setLanguage(const QString& lang);
+
+    void penDown(const QPointF& p, qreal pressure);
+    void penMove(const QPointF& p, qreal pressure);
+    void penUp(const QPointF& p, qreal pressure);
+
+signals:
+    // For drawing
+    void strokeUpdated(const QPointF& pos, qreal width);
+
+    // For recognition
+    void textRecognized(const QString& text);
+    void shapesRecognized(const QString& shapes);
+
+private slots:
+    void onTextReady(const QString& text);
+    void onShapesReady(const QString& shapes);
+
+private:
+    BrushEngine          m_engine;
+    UnifiedInkRecognizer m_recognizer;
+
+    QElapsedTimer        m_timer;
+};
+
+
+
+#include "InkController.h"
+#include <QtConcurrent>
+
+InkController::InkController(QObject* parent)
+    : QObject(parent)
+{
+    // Connect recognizer signals to controller signals
+    connect(&m_recognizer, &UnifiedInkRecognizer::textReady,
+            this, &InkController::onTextReady);
+
+    connect(&m_recognizer, &UnifiedInkRecognizer::shapesReady,
+            this, &InkController::onShapesReady);
+}
+
+void InkController::setLanguage(const QString& lang)
+{
+    m_recognizer.setLanguage(lang);
+}
+
+void InkController::penDown(const QPointF& p, qreal pressure)
+{
+    m_engine.reset(p, 4.0);   // start stroke
+    m_timer.restart();        // reset timestamp
+
+    m_recognizer.beginStroke();
+}
+
+void InkController::penMove(const QPointF& p, qreal pressure)
+{
+    if (m_engine.update(p, pressure)) {
+        // Draw stroke
+        emit strokeUpdated(m_engine.pos, m_engine.width);
+
+        // Feed smoothed point to recognizer
+        qreal t = m_timer.elapsed();
+        m_recognizer.addPoint(m_engine.pos, t);
+    }
+}
+
+void InkController::penUp(const QPointF& p, qreal pressure)
+{
+    if (m_engine.update(p, pressure)) {
+        emit strokeUpdated(m_engine.pos, m_engine.width);
+
+        qreal t = m_timer.elapsed();
+        m_recognizer.addPoint(m_engine.pos, t);
+    }
+
+    m_recognizer.endStroke();
+
+    // Run recognition asynchronously
+    QtConcurrent::run([this]() {
+        m_recognizer.recognizeAsync();
+    });
+}
+
+void InkController::onTextReady(const QString& text)
+{
+    emit textRecognized(text);
+}
+
+void InkController::onShapesReady(const QString& shapes)
+{
+    emit shapesRecognized(shapes);
+}
