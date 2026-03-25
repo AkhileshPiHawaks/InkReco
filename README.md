@@ -54,6 +54,32 @@ The wrapper isolates all WinRT complexity so your Qt code stays clean and portab
 
 ### 1. Enable WinRT in your Qt project
 Add this to your `.pro` or CMake file:
+### 1. Include the wrapper
+#include "UnifiedInkRecognizer.h"
+
+
+### 2. Connect signals
+connect(recognizer, &UnifiedInkRecognizer::textReady,
+        this, &YourClass::onTextReady);
+
+connect(recognizer, &UnifiedInkRecognizer::shapesReady,
+        this, &YourClass::onShapesReady);
+
+
+### 3. recognizer
+recognizer->addStroke(points);
+recognizer->recognizeAsync();
+
+### 4. Text Recognition:
+"hello world"
+### 5. Shape Recognition:
+"circle, rectangle, arrow"
+### License
+MIT License — free for commercial and open‑source use.
+
+### Contributing
+Pull requests are welcome!
+If you want to extend the wrapper (e.g., stroke smoothing, shape analysis, pressure curves), feel free to open an issue.
 
 **qmake:**
 ```pro
@@ -63,29 +89,3 @@ LIBS += -lruntimeobject
 **CMake:**
 target_link_libraries(${PROJECT_NAME} PRIVATE runtimeobject)
 
-**1. Include the wrapper**
-#include "UnifiedInkRecognizer.h"
-
-
-**2. Connect signals**
-connect(recognizer, &UnifiedInkRecognizer::textReady,
-        this, &YourClass::onTextReady);
-
-connect(recognizer, &UnifiedInkRecognizer::shapesReady,
-        this, &YourClass::onShapesReady);
-
-
-**3. recognizer**
-recognizer->addStroke(points);
-recognizer->recognizeAsync();
-
-**4. Text Recognition:**
-"hello world"
-**5. Shape Recognition:**
-"circle, rectangle, arrow"
-License
-MIT License — free for commercial and open‑source use.
-
-Contributing
-Pull requests are welcome!
-If you want to extend the wrapper (e.g., stroke smoothing, shape analysis, pressure curves), feel free to open an issue.
