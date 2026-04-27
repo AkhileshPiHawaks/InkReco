@@ -89,3 +89,22 @@ LIBS += -lruntimeobject
 **CMake:**
 target_link_libraries(${PROJECT_NAME} PRIVATE runtimeobject)
 
+### 4. Minimal QT Reco Demo
+
+#include <QApplication>
+#include <QLabel>
+#include "UnifiedInkRecognizer.h"
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+
+    QLabel output("Write something...");
+    UnifiedInkRecognizer recognizer;
+
+    QObject::connect(&recognizer, &UnifiedInkRecognizer::recognitionComplete,
+                     &output, &QLabel::setText);
+
+    output.show();
+    return app.exec();
+}
+ 
