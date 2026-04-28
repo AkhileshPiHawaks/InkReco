@@ -17,7 +17,7 @@ It provides a clean, Qt‑friendly interface for capturing ink strokes, recogniz
 - Async recognition with Qt signals  
 - Returns recognized text and shape classifications
 
-### ✔️ Qt‑Friendly API
+### ✔️ Qt‑API
 - Pure C++/Qt wrapper classes  
 - No need to interact with WinRT directly  
 - Signals/slots for:
@@ -260,4 +260,4 @@ For issues, questions, or feature requests, please open a [GitHub Issue](../../i
 
 ---
 
-**Made with ❤️ for Qt developers**
+**Qt developers**
